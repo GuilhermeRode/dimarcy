@@ -25,6 +25,7 @@ def entry(parent, textvariable=None, width=None, **kw):
 class StatusBadge(tk.Frame):
     def __init__(self, parent, status: str, **kw):
         bg, fg = STATUS_COLORS.get(status, (CINZA_100, CINZA_700))
+        kw.pop("bg", None)  # Remove bg from kw if present
         super().__init__(parent, bg=bg, **kw)
         tk.Label(self, text=f"  {status}  ", font=FONT_SMALL,
                  fg=fg, bg=bg).pack()
@@ -138,7 +139,7 @@ class SecondaryBtn(tk.Frame):
         self._btn.pack()
 
 
-# ── DangerBtn ─────────────────────────────────────────────────────────────────
+# ── DangerBtn ──────────────────────────────────────────────────────────────────
 
 class DangerBtn(tk.Frame):
     def __init__(self, parent, text: str = "", command=None, **kw):
@@ -154,6 +155,7 @@ class DangerBtn(tk.Frame):
 
 class StatCard(tk.Frame):
     def __init__(self, parent, label: str = "", value: str = "", icon: str = "", icon_color: str = MARROM, **kw):
+        kw.pop("bg", None)  # Remove bg from kw if present
         super().__init__(parent, bg=CREME_CARD,
                          highlightbackground=CREME_ESCURO,
                          highlightthickness=1, **kw)
