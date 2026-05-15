@@ -49,6 +49,7 @@ def init_db():
         entrada       REAL DEFAULT 0,
         obs_pgto      TEXT,
         obs_geral     TEXT,
+        vendedor      TEXT,
         status        TEXT DEFAULT 'Rascunho',
         total_pecas   INTEGER DEFAULT 0,
         total_valor   REAL DEFAULT 0,
@@ -74,5 +75,9 @@ def init_db():
         FOREIGN KEY(pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE
     );
     """)
+    # migração leve para bases antigas
+    cols = [r[1] for r in con.execute("PRAGMA table_info(pedidos)").fetchall()]
+    if "vendedor" not in cols:
+        con.execute("ALTER TABLE pedidos ADD COLUMN vendedor TEXT")
     con.commit()
     con.close()

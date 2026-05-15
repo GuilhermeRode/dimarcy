@@ -38,6 +38,7 @@ class DashboardView(tk.Frame):
         bottom.pack(fill="both", expand=True, padx=PAD_PAGE, pady=16)
         bottom.columnconfigure(0, weight=1)
         bottom.columnconfigure(1, weight=2)
+        bottom.columnconfigure(2, weight=2)
         bottom.rowconfigure(0, weight=1)
 
         # Status breakdown card
@@ -47,8 +48,12 @@ class DashboardView(tk.Frame):
 
         # Recentes card
         rec_card = Card(bottom, title="Pedidos recentes", accent_left=True)
-        rec_card.grid(row=0, column=1, sticky="nsew")
+        rec_card.grid(row=0, column=1, sticky="nsew", padx=(0, 10))
         rec_body = rec_card.body()
+
+        rank_card = Card(bottom, title="Referências mais vendidas", accent_left=True)
+        rank_card.grid(row=0, column=2, sticky="nsew")
+        rank_body = rank_card.body()
 
         cols = [("numero","Número",90), ("cliente_nome","Cliente",180),
                 ("total_valor","Valor",90), ("status","Status",110),
@@ -56,6 +61,39 @@ class DashboardView(tk.Frame):
         self._rec_tree = build_treeview(rec_body, cols, height=8)
         self._rec_tree.pack(fill="both", expand=True)
         self._rec_tree.bind("<Double-1>", self._abrir_recente)
+
+        rank_cols = [("pos","#",40), ("referencia","Referência",110),
+                     ("descricao","Descrição",170), ("total_pecas","Peças",70)]
+        self._rank_tree = build_treeview(rank_body, rank_cols, height=8)
+        self._rank_tree.pack(fill="both", expand=True)
+
+        self._configure_tree_columns()
+        self._rank_tree.tag_configure("top1", background="#FFF4DD", foreground="#7A4B00")
+        self._rank_tree.tag_configure("top2", background="#F4F7FB", foreground="#465A70")
+        self._rank_tree.tag_configure("top3", background="#FFF0E6", foreground="#8A4B2F")
+        self._rank_tree.tag_configure("default", background=CREME_CARD, foreground=CINZA_700)
+
+
+    def _configure_tree_columns(self):
+        self._rec_tree.heading("numero", anchor="center")
+        self._rec_tree.heading("cliente_nome", anchor="w")
+        self._rec_tree.heading("total_valor", anchor="e")
+        self._rec_tree.heading("status", anchor="center")
+        self._rec_tree.heading("dt_entrega", anchor="center")
+        self._rec_tree.column("numero", anchor="center")
+        self._rec_tree.column("cliente_nome", anchor="w")
+        self._rec_tree.column("total_valor", anchor="e")
+        self._rec_tree.column("status", anchor="center")
+        self._rec_tree.column("dt_entrega", anchor="center")
+
+        self._rank_tree.heading("pos", anchor="center")
+        self._rank_tree.heading("referencia", anchor="center")
+        self._rank_tree.heading("descricao", anchor="w")
+        self._rank_tree.heading("total_pecas", anchor="e")
+        self._rank_tree.column("pos", anchor="center", width=42, minwidth=40)
+        self._rank_tree.column("referencia", anchor="center")
+        self._rank_tree.column("descricao", anchor="w")
+        self._rank_tree.column("total_pecas", anchor="e")
 
     def refresh(self):
         stats = self.ctrl.dashboard()
@@ -97,6 +135,18 @@ class DashboardView(tk.Frame):
                 values=(rec["numero"], rec["cliente_nome"],
                         f"R$ {rec['total_valor']:.2f}",
                         rec["status"], rec.get("dt_entrega","—")))
+
+        for r in self._rank_tree.get_children():
+            self._rank_tree.delete(r)
+        for i, row in enumerate(self.ctrl.ranking_referencias(10), start=1):
+            medal = "🥇" if i == 1 else ("🥈" if i == 2 else ("🥉" if i == 3 else f"{i}º"))
+            tag = "top1" if i == 1 else ("top2" if i == 2 else ("top3" if i == 3 else "default"))
+            self._rank_tree.insert("", "end", values=(
+                medal,
+                row.get("referencia", ""),
+                row.get("descricao", "") or "—",
+                row.get("total_pecas", 0),
+            ), tags=(tag,))
 
     def _abrir_recente(self, _):
         sel = self._rec_tree.selection()

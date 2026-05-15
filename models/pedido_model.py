@@ -61,6 +61,7 @@ class Pedido:
     entrada:        float = 0.0
     obs_pgto:       str  = ""
     obs_geral:      str  = ""
+    vendedor:       str  = ""
     status:         str  = "Rascunho"
     numero:         str  = ""
     id: Optional[int]    = None
@@ -136,7 +137,7 @@ def salvar(p: Pedido) -> int:
     campos = ("cliente_nome","cliente_doc","cliente_tel","cliente_email",
               "cliente_end","cliente_cidade","dt_pedido","dt_entrega",
               "tipo_entrega","obs_entrega","forma_pgto","prazo_pgto",
-              "desconto","entrada","obs_pgto","obs_geral","status")
+              "desconto","entrada","obs_pgto","obs_geral","vendedor","status")
     vals = tuple(getattr(p, c) for c in campos)
     total_pcs = p.total_pecas
     total_val = p.valor_liquido
@@ -225,3 +226,19 @@ def dashboard_stats() -> dict:
         "por_status": [dict(r) for r in por_status],
         "recentes": [dict(r) for r in recentes],
     }
+
+
+def referencias_mais_vendidas(limit: int = 10) -> list[dict]:
+    con = get_connection()
+    rows = con.execute("""
+        SELECT referencia,
+               MAX(COALESCE(descricao, '')) as descricao,
+               SUM(COALESCE(total_pcs, 0)) as total_pecas
+        FROM itens_pedido
+        WHERE TRIM(COALESCE(referencia, '')) != ''
+        GROUP BY referencia
+        ORDER BY total_pecas DESC, referencia ASC
+        LIMIT ?
+    """, (limit,)).fetchall()
+    con.close()
+    return [dict(r) for r in rows]

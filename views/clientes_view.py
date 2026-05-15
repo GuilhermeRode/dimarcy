@@ -38,10 +38,27 @@ class ClientesView(tk.Frame):
         frame = tk.Frame(self, bg=CREME)
         frame.pack(fill="both", expand=True, padx=PAD_PAGE)
         self._tree = build_treeview(frame, cols, height=24)
+        self._configure_columns()
         sb = ttk.Scrollbar(frame, orient="vertical", command=self._tree.yview)
         self._tree.configure(yscrollcommand=sb.set)
         self._tree.pack(side="left", fill="both", expand=True)
         sb.pack(side="left", fill="y")
+
+    def _configure_columns(self):
+        self._tree.heading("cliente_nome", anchor="center")
+        self._tree.heading("cliente_doc", anchor="center")
+        self._tree.heading("cliente_tel", anchor="center")
+        self._tree.heading("cliente_email", anchor="center")
+        self._tree.heading("cliente_cidade", anchor="center")
+        self._tree.heading("total_pedidos", anchor="center")
+        self._tree.heading("total_gasto", anchor="center")
+        self._tree.column("cliente_nome", anchor="center")
+        self._tree.column("cliente_doc", anchor="center")
+        self._tree.column("cliente_tel", anchor="center")
+        self._tree.column("cliente_email", anchor="center")
+        self._tree.column("cliente_cidade", anchor="center")
+        self._tree.column("total_pedidos", anchor="center")
+        self._tree.column("total_gasto", anchor="center")
 
     def refresh(self):
         for r in self._tree.get_children():
