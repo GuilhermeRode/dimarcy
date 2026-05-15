@@ -19,7 +19,6 @@ class ItemPedido:
     referencia:     str  = ""
     descricao:      str  = ""
     cor:            str  = ""
-    material:       str  = ""
     preco_unitario: float = 0.0
     qtd_pp:    int = 0
     qtd_p:     int = 0
@@ -58,7 +57,6 @@ class Pedido:
     forma_pgto:     str  = "À vista — PIX"
     prazo_pgto:     str  = "No ato"
     desconto:       float = 0.0
-    entrada:        float = 0.0
     obs_pgto:       str  = ""
     obs_geral:      str  = ""
     vendedor:       str  = ""
@@ -79,9 +77,6 @@ class Pedido:
     def valor_liquido(self) -> float:
         return self.valor_bruto * (1 - self.desconto / 100)
 
-    @property
-    def saldo(self) -> float:
-        return self.valor_liquido - self.entrada
 
 
 # ── Repository ──────────────────────────────────────────────────────────────────
@@ -164,10 +159,10 @@ def salvar(p: Pedido) -> int:
 
     for it in p.itens:
         con.execute("""INSERT INTO itens_pedido
-            (pedido_id,referencia,descricao,cor,material,preco_unitario,
+            (pedido_id,referencia,descricao,cor,preco_unitario,
              qtd_pp,qtd_p,qtd_m,qtd_g,qtd_gg,qtd_xgg,qtd_unico,total_pcs)
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-            (pid, it.referencia, it.descricao, it.cor, it.material,
+            (pid, it.referencia, it.descricao, it.cor,
              it.preco_unitario, it.qtd_pp, it.qtd_p, it.qtd_m,
              it.qtd_g, it.qtd_gg, it.qtd_xgg, it.qtd_unico, it.total_pcs))
     con.commit()

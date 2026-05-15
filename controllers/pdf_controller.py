@@ -8,7 +8,7 @@ from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import (SimpleDocTemplate, Paragraph, Table,
                                  TableStyle, Spacer, HRFlowable)
-from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
+from reportlab.lib.enums import TA_CENTER, TA_CENTER, TA_RIGHT, TA_LEFT
 from models.pedido_model import Pedido, TAMANHOS, _SZ_COLS
 from models import config_model
 
@@ -129,39 +129,61 @@ def gerar(pedido: Pedido, path: str):
         ("FONTSIZE",    (0,0), (-1,-1), 7),
         ("ROWBACKGROUNDS", (0,1), (-1,-1), [BRANCO, CREME]),
         ("GRID",        (0,0), (-1,-1), 0.3, AZUL_ESCURO),
-        ("ALIGN",       (4,0), (-1,-1), "CENTER"),
+        ("ALIGN",       (4,0), (-1,-1), "center"),
         ("PADDING",     (0,0), (-1,-1), 4),
         ("FONTNAME",    (-1,1), (-1,-1), "Helvetica-Bold"),
         ("TEXTCOLOR",   (-1,1), (-1,-1), AZUL),
     ]))
     story.append(it_t)
 
-    story.append(Spacer(1, 0.4*cm))
-    story.append(Paragraph("DADOS DO PEDIDO", s_sec))
+    story.append(Paragraph("DADOS DO PEDIDO E PAGAMENTO", s_sec))
     tot_data = [
-        ["Total de peças", str(pedido.total_pecas), "Valor bruto", f"R$ {pedido.valor_bruto:.2f}"], 
-        [f"Desconto", f"{pedido.desconto:.1f}%" or "-", "Valor líquido", f"R$ {pedido.valor_liquido:.2f}"],
-        ["OBS:", str(pedido.obs_geral)],
+        [
+            "Total de peças",
+            str(pedido.total_pecas),
+            "Valor bruto",
+            f"R$ {pedido.valor_bruto:.2f}",
+            "Forma de pagamento",
+            pedido.forma_pgto or "—",
+        ],
+
+        [
+            "Desconto",
+            f"{pedido.desconto:.1f}%" if pedido.desconto is not None else "-",
+            "Valor líquido",
+            f"R$ {pedido.valor_liquido:.2f}",
+            "Prazo",
+            pedido.prazo_pgto or "—",
+        ],
+
+        [
+        "OBS:",
+        str(pedido.obs_geral or ""),
+        "",
+        "",
+        "",
+        "",
+    ],
     ]
-    tt = Table(tot_data, colWidths=[4*cm, 3.5*cm, 3.5*cm, 4*cm, 8*cm])
+    tt = Table(tot_data, colWidths=[3*cm, 2*cm, 3*cm, 2*cm, 4*cm, 3*cm, 3*cm])
     tt.setStyle(TableStyle([
         ("FONTNAME",   (0,0), (0,-1), "Helvetica-Bold"),
         ("FONTNAME",   (2,0), (2,-1), "Helvetica-Bold"),
+        ("FONTNAME",   (4,0), (4,-1), "Helvetica-Bold"),
         ("FONTSIZE",   (0,0), (-1,-1), 8),
         ("BACKGROUND", (0,0), (-1,-1), BRANCO),
         ("GRID",       (0,0), (-1,-1), 0.4, AZUL_ESCURO),
         ("PADDING",    (0,0), (-1,-1), 6),
         ("FONTNAME",   (3,2), (3,2), "Helvetica-Bold"),
         ("TEXTCOLOR",  (3,2), (3,2), AZUL),
-        ("FONTSIZE",   (3,2), (3,2), 10),
+        ("FONTSIZE",   (3,2), (3,2), 10),  
+        ("SPAN", (1, 2), (5, 2))
     ]))
     story.append(tt)
 
     # ── Pagamento / Entrega ───────────────────────────────────────────────────
-    story.append(Paragraph("PAGAMENTO E ENTREGA", s_sec))
+    story.append(Paragraph("ENTREGA", s_sec))
     pg_data = [
-        ["Forma de pagamento", pedido.forma_pgto or "—",
-         "Prazo", pedido.prazo_pgto or "—"],
         ["Tipo de entrega", pedido.tipo_entrega or "—",
          "Prev. entrega", pedido.dt_entrega or "—"],
     ]
