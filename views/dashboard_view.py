@@ -23,7 +23,7 @@ class DashboardView(tk.Frame):
                  fg=CINZA_900, bg=CREME).pack(side="left")
         PrimaryBtn(hdr, "＋  Novo pedido",
                    command=self.app.novo_pedido).pack(side="right")
-        tk.Label(hdr, text="Visão geral da sua empresa",
+        tk.Label(hdr, text="Visão geral",
                  font=FONT_SMALL, fg=CINZA_500, bg=CREME).pack(
                  side="left", padx=(12, 0))
         ttk.Separator(self, orient="horizontal").pack(
@@ -65,7 +65,7 @@ class DashboardView(tk.Frame):
             w.destroy()
 
         cards_data = [
-            ("Total de pedidos", str(stats["total"]), "📋", MARROM),
+            ("Total de pedidos", str(stats["total"]), "📋", AZUL),
             ("Faturamento", f"R$ {stats['faturamento']:,.2f}", "💰", "#0F6E56"),
             ("Em produção", str(stats["em_producao"]), "🧶", "#854F0B"),
             ("A entregar", str(stats["a_entregar"]), "📦", "#185FA5"),

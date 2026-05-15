@@ -58,8 +58,8 @@ class FormPedidoView(tk.Frame):
         left.pack(side="left", padx=PAD_PAGE, pady=12)
 
         self._titulo_lbl = tk.Label(left, text="Novo pedido",
-                                     font=FONT_HEADING, fg=CINZA_900,
-                                     bg=CREME_CARD)
+                                     font=FONT_HEADING, fg=CINZA_900,bg=CREME_CARD
+                                     )
         self._titulo_lbl.pack(side="left")
 
         self._num_lbl = tk.Label(left, text="", font=FONT_BODY,
@@ -82,7 +82,7 @@ class FormPedidoView(tk.Frame):
 
     def _section(self, parent, title: str) -> tk.Frame:
         """Retorna o body frame de um Card section."""
-        card = Card(parent, title=title, accent_left=True, bg=CREME_CARD)
+        card = Card(parent, title=title, accent_left=True)
         card.pack(fill="x", padx=PAD_PAGE, pady=(14, 0))
         return card.body()
 
@@ -225,17 +225,17 @@ class FormPedidoView(tk.Frame):
         self._obs_pgto = self._lbl_text(body, "Observações de pagamento")
 
     def _build_itens(self, parent):
-        card = Card(parent, title="🧶  Itens do pedido", accent_left=True, bg=CREME_CARD)
+        card = Card(parent, title="🧶  Itens do pedido", accent_left=True)
         card.pack(fill="x", padx=PAD_PAGE, pady=(14, 0))
 
         # totais bar
         tot_bar = tk.Frame(card, bg=CREME_CARD)
         tot_bar.pack(fill="x", padx=PAD_CARD, pady=(0, 6))
         self._tot_pcs_lbl = tk.Label(tot_bar, text="0 peças",
-                                      font=FONT_SUBHEAD, fg=MARROM, bg=CREME_CARD)
+                                      font=FONT_SUBHEAD, fg=AZUL, bg=CREME_CARD)
         self._tot_pcs_lbl.pack(side="left")
         self._tot_val_lbl = tk.Label(tot_bar, text="  R$ 0,00",
-                                      font=FONT_SUBHEAD, fg=MARROM, bg=CREME_CARD)
+                                      font=FONT_SUBHEAD, fg=AZUL, bg=CREME_CARD)
         self._tot_val_lbl.pack(side="left")
         SecondaryBtn(tot_bar, "＋  Adicionar referência",
                      command=self._add_item).pack(side="right")
@@ -385,20 +385,22 @@ class _ItemRow(tk.Frame):
         self._on_change = on_change
         self._vs: dict[str, tk.StringVar] = {}
         self._sz: dict[str, tk.StringVar] = {}
+        
         self._build(idx)
         if item:
             self._load(item)
 
+
     def _build(self, idx: int):
         # Header
-        hdr = tk.Frame(self, bg=MARROM)
+        hdr = tk.Frame(self, bg=AZUL)
         hdr.pack(fill="x")
         tk.Label(hdr, text=f"  Referência {idx}",
                  font=(FONT_FAMILY, 9, "bold"), fg=DOURADO,
-                 bg=MARROM).pack(side="left", pady=5)
+                 bg=AZUL).pack(side="left", pady=5)
         tk.Button(hdr, text="✕ remover", font=FONT_LABEL,
-                  fg="#F09595", bg=MARROM, relief="flat", cursor="hand2",
-                  activebackground=MARROM_MED, activeforeground="white",
+                  fg="#F09595", bg=AZUL, relief="flat", cursor="hand2",
+                  activebackground=AZUL_MED, activeforeground="white",
                   command=lambda: self._on_remove(self)).pack(
                   side="right", padx=8, pady=4)
 
@@ -425,7 +427,12 @@ class _ItemRow(tk.Frame):
                      fg=CINZA_500, bg=CINZA_100).pack(anchor="w", pady=(0,2))
             e = ttk.Entry(f, textvariable=self._vs[key], font=FONT_BODY)
             e.pack(fill="x")
-            e.bind("<KeyRelease>", lambda _: self._on_change())
+
+            # referência busca automaticamente
+            if key == "referencia":
+                e.bind("<KeyRelease>", self._buscar_produto_mock)
+            else:
+                e.bind("<KeyRelease>", lambda _: self._on_change())
 
         # Row 2: tamanhos
         r2 = tk.Frame(body, bg=CINZA_100)
@@ -436,7 +443,7 @@ class _ItemRow(tk.Frame):
 
         self._tot_lbl = tk.Label(r2, text="0 pçs",
                                   font=(FONT_FAMILY, 9, "bold"),
-                                  fg=MARROM, bg=CINZA_100)
+                                  fg=AZUL, bg=CINZA_100)
 
         for i, size in enumerate(TAMANHOS):
             self._sz[size] = tk.StringVar(value="0")
@@ -460,6 +467,19 @@ class _ItemRow(tk.Frame):
         self._vs["preco"].set(str(item.preco_unitario) if item.preco_unitario else "")
         for size, col in zip(TAMANHOS, _SZ_COLS):
             self._sz[size].set(str(getattr(item, col, 0)))
+
+    def _buscar_produto_mock(self, event=None):
+        ref = self._vs["referencia"].get().strip()
+
+        produto = PRODUTOS_MOCK.get(ref)
+
+        if not produto:
+            return
+
+        self._vs["descricao"].set(produto["descricao"])
+        self._vs["preco"].set(f'{produto["preco"]:.2f}')
+
+        self._on_change()
 
     def totals(self) -> tuple[int, float]:
         pcs = sum(int(v.get() or 0) for v in self._sz.values())
@@ -486,3 +506,26 @@ class _ItemRow(tk.Frame):
             except ValueError:
                 setattr(item, col, 0)
         return item
+
+PRODUTOS_MOCK = {
+    "1130": {
+        "descricao": "Calça fusô",
+        "preco": 109.8
+        },
+
+    "1163": {
+        "descricao": "Calça sweet friso",
+        "preco": 139.80
+    },
+
+    "1003": {
+        "descricao": "Blusa sweet friso",
+        "preco": 139.80
+    },
+
+    "2001": {
+        "descricao": "Blusa térmica feminina",
+        "preco": 39.8
+        
+    }
+}

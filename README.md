@@ -1,4 +1,4 @@
-# 🧶 Tricot Pedidos — v2.0 MVC
+# 🧶 Di Marcy Pedidos — v2.0 MVC
 
 Sistema desktop de gerenciamento de pedidos para empresa de tricot.
 Banco de dados SQLite local + PDF profissional + arquitetura MVC.

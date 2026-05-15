@@ -44,10 +44,10 @@ class Card(tk.Frame):
             hdr = tk.Frame(self, bg=bg)
             hdr.pack(fill="x", padx=PAD_CARD, pady=(PAD_CARD, 4))
             if accent_left:
-                accent = tk.Frame(hdr, bg=MARROM, width=3)
+                accent = tk.Frame(hdr, bg=AZUL, width=3)
                 accent.pack(side="left", fill="y", padx=(0, 8))
             tk.Label(hdr, text=title, font=FONT_SUBHEAD,
-                     fg=MARROM, bg=bg).pack(side="left", anchor="w")
+                     fg=AZUL, bg=bg).pack(side="left", anchor="w")
             ttk.Separator(self, orient="horizontal").pack(fill="x",
                 padx=PAD_CARD, pady=(0, PAD_CARD//2))
 
@@ -118,8 +118,8 @@ class PrimaryBtn(tk.Frame):
     def __init__(self, parent, text: str = "", command=None, **kw):
         super().__init__(parent, **kw)
         self._btn = tk.Button(self, text=text, command=command,
-                              font=FONT_SMALL, bg=MARROM, fg="white",
-                              activebackground=MARROM_ESCURO, activeforeground="white",
+                              font=FONT_SMALL, bg=AZUL, fg="white",
+                              activebackground=AZUL_ESCURO, activeforeground="white",
                               relief="flat", padx=14, pady=6)
         self._btn.pack()
 
@@ -154,7 +154,7 @@ class DangerBtn(tk.Frame):
 # ── StatCard ──────────────────────────────────────────────────────────────────
 
 class StatCard(tk.Frame):
-    def __init__(self, parent, label: str = "", value: str = "", icon: str = "", icon_color: str = MARROM, **kw):
+    def __init__(self, parent, label: str = "", value: str = "", icon: str = "", icon_color: str = AZUL, **kw):
         kw.pop("bg", None)  # Remove bg from kw if present
         super().__init__(parent, bg=CREME_CARD,
                          highlightbackground=CREME_ESCURO,

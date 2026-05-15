@@ -23,7 +23,7 @@ def init_db():
         chave TEXT PRIMARY KEY,
         valor TEXT
     );
-    INSERT OR IGNORE INTO config VALUES ('empresa_nome', 'Minha Empresa de Tricot');
+    INSERT OR IGNORE INTO config VALUES ('empresa_nome', 'Di Marcy');
     INSERT OR IGNORE INTO config VALUES ('empresa_cnpj', '');
     INSERT OR IGNORE INTO config VALUES ('empresa_tel', '');
     INSERT OR IGNORE INTO config VALUES ('empresa_email', '');

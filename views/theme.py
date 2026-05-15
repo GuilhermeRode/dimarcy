@@ -1,38 +1,51 @@
 """
 views/theme.py
-Tokens de design centralizados — cores, fontes, espaçamentos.
-Altere aqui para mudar a aparência de toda a aplicação.
+Tema azul moderno
 """
 
 # ── Paleta principal ─────────────────────────────────────────────────────────
-MARROM_ESCURO  = "#2A1005"   # sidebar, cabeçalhos escuros
-MARROM         = "#4A1B0C"   # cor primária (botões, destaques)
-MARROM_MED     = "#712B13"   # hover primário
-CARAMELO       = "#C8813A"   # acento quente
-DOURADO        = "#FAC775"   # texto sidebar / badges
-CREME_ESCURO   = "#EDE0CE"   # border cards
-CREME          = "#FDF6EE"   # background geral
-CREME_CARD     = "#FFFFFF"   # cards
-CREME_ROW      = "#F9F4EE"   # zebra rows
+AZUL_ESCURO   = "#16324F"   # sidebar
+AZUL          = "#1F4E79"   # primária
+AZUL_MED      = "#2E6DA4"   # hover
+AZUL_CLARO    = "#DCEEFF"   # acentos leves
+AZUL_SOFT     = "#EDF5FC"   # fundo cards
+AZUL_BORDER   = "#C7DCEF"   # bordas suaves
 
-CINZA_900      = "#1C1C1A"   # texto escuro
-CINZA_700      = "#444441"   # texto normal
-CINZA_500      = "#888780"   # texto muted / labels
-CINZA_300      = "#D3D1C7"   # borders suaves
-CINZA_100      = "#F1EFE8"   # backgrounds secundários
+BRANCO_GELO   = "#F8FBFF"   # background geral
+BRANCO_CARD   = "#FFFFFF"   # cards
+ROW_BG        = "#F4F9FF"   # zebra rows
 
-# Status colors
+CINZA_900     = "#1E2933"
+CINZA_700     = "#4A5560"
+CINZA_500     = "#7A8793"
+CINZA_300     = "#D6DEE6"
+CINZA_100     = "#EEF3F8"
+
+# Compatibilidade com nomes antigos
+AZUL_ESCURO = AZUL_ESCURO
+AZUL         = AZUL
+AZUL_MED     = AZUL_MED
+AZUL_CLARO       = AZUL_CLARO
+DOURADO        = "#A7D3FF"
+
+CREME_ESCURO   = AZUL_BORDER
+CREME          = BRANCO_GELO
+CREME_CARD     = BRANCO_CARD
+CREME_ROW      = ROW_BG
+
+# ── Status colors ───────────────────────────────────────────────────────────
 STATUS_COLORS = {
-    "Rascunho":     ("#F1EFE8", "#444441"),   # (bg, fg)
-    "Confirmado":   ("#E6F1FB", "#185FA5"),
-    "Em produção":  ("#FAEEDA", "#854F0B"),
-    "Pronto":       ("#EAF3DE", "#3B6D11"),
-    "Entregue":     ("#E1F5EE", "#0F6E56"),
-    "Cancelado":    ("#FCEBEB", "#A32D2D"),
+    "Rascunho":     ("#EEF3F8", "#4A5560"),
+    "Confirmado":   ("#DCEEFF", "#1F4E79"),
+    "Em produção":  ("#E8F4FF", "#2E6DA4"),
+    "Pronto":       ("#E3F7ED", "#237A4B"),
+    "Entregue":     ("#DFF7F2", "#0E7490"),
+    "Cancelado":    ("#FDECEC", "#B42318"),
 }
 
-# ── Tipografia ────────────────────────────────────────────────────────────────
-FONT_FAMILY    = "Helvetica"
+# ── Tipografia ──────────────────────────────────────────────────────────────
+FONT_FAMILY    = "Segoe UI"
+
 FONT_TITLE     = (FONT_FAMILY, 22, "bold")
 FONT_HEADING   = (FONT_FAMILY, 14, "bold")
 FONT_SUBHEAD   = (FONT_FAMILY, 11, "bold")
@@ -40,14 +53,14 @@ FONT_BODY      = (FONT_FAMILY, 10)
 FONT_SMALL     = (FONT_FAMILY, 9)
 FONT_LABEL     = (FONT_FAMILY, 8)
 
-# ── Espaçamentos ──────────────────────────────────────────────────────────────
-PAD_PAGE   = 28    # margem externa
-PAD_CARD   = 16    # padding interno dos cards
-PAD_ROW    = 6     # gap entre campos numa linha
-PAD_FIELD  = 4     # gap label→input
+# ── Espaçamentos ────────────────────────────────────────────────────────────
+PAD_PAGE   = 28
+PAD_CARD   = 16
+PAD_ROW    = 6
+PAD_FIELD  = 4
 
-# ── Dimensões ─────────────────────────────────────────────────────────────────
+# ── Dimensões ───────────────────────────────────────────────────────────────
 SIDEBAR_W  = 230
-RADIUS     = 8
-INPUT_H    = 32
-BTN_H      = 34
+RADIUS     = 10
+INPUT_H    = 34
+BTN_H      = 36

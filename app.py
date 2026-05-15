@@ -37,10 +37,10 @@ NAV_ITEMS = [
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Tricot — Sistema de Pedidos")
+        self.title("Pedidos - Di Marcy")
         self.geometry("1280x780")
         self.minsize(1000, 640)
-        self.configure(bg=MARROM_ESCURO)
+        self.configure(bg="#1E3A5F")
 
         # ── TTK style global ─────────────────────────────────────────────────
         style = ttk.Style(self)
@@ -49,7 +49,7 @@ class App(tk.Tk):
         style.configure("TEntry", fieldbackground=CREME_CARD,
                          foreground=CINZA_900, bordercolor=CINZA_300,
                          padding=(6, 4))
-        style.map("TEntry", bordercolor=[("focus", CARAMELO)])
+        style.map("TEntry", bordercolor=[("focus", AZUL_CLARO)])
         style.configure("TCombobox", fieldbackground=CREME_CARD,
                          foreground=CINZA_900, bordercolor=CINZA_300,
                          padding=(6, 4))
@@ -90,24 +90,24 @@ class App(tk.Tk):
     # ── Sidebar ───────────────────────────────────────────────────────────────
 
     def _build_sidebar(self) -> tk.Frame:
-        sb = tk.Frame(self, bg=MARROM_ESCURO, width=SIDEBAR_W)
+        sb = tk.Frame(self, bg=AZUL_ESCURO, width=SIDEBAR_W)
         sb.pack_propagate(False)
 
         # Brand
-        brand = tk.Frame(sb, bg=MARROM_ESCURO)
+        brand = tk.Frame(sb, bg=AZUL_ESCURO)
         brand.pack(fill="x", pady=(24, 8))
         tk.Label(brand, text="🧶", font=(FONT_FAMILY, 28),
-                 fg=DOURADO, bg=MARROM_ESCURO).pack()
-        tk.Label(brand, text="Tricot Pedidos",
+                 fg=DOURADO, bg=AZUL_ESCURO).pack()
+        tk.Label(brand, text="Di Marcy Tricot",
                  font=(FONT_FAMILY, 13, "bold"),
-                 fg=DOURADO, bg=MARROM_ESCURO).pack(pady=(2,0))
-        self._empresa_lbl = tk.Label(brand, text=config_model.get("empresa_nome"),
+                 fg=DOURADO, bg=AZUL_ESCURO).pack(pady=(2,0))
+        self._empresa_lbl = tk.Label(brand, text="Since 2001",
                                       font=(FONT_FAMILY, 8),
-                                      fg="#7A6A5A", bg=MARROM_ESCURO,
+                                      fg="#BDBDBD", bg=AZUL_ESCURO,
                                       wraplength=180)
         self._empresa_lbl.pack(pady=(2, 16))
 
-        tk.Frame(sb, bg="#3A2010", height=1).pack(fill="x", padx=20)
+        tk.Frame(sb, bg=AZUL_ESCURO, height=1).pack(fill="x", padx=20)
 
         # Nav buttons
         self._nav_btns: dict[str, tk.Button] = {}
@@ -117,8 +117,8 @@ class App(tk.Tk):
                 text=f"  {icon}  {label}",
                 anchor="w",
                 font=(FONT_FAMILY, 10),
-                bg=MARROM_ESCURO, fg="#B8A898",
-                activebackground="#3D2010",
+                bg=AZUL_ESCURO, fg="#DCEEFF",
+                activebackground="#2E6DA4",
                 activeforeground=DOURADO,
                 relief="flat", cursor="hand2",
                 pady=11, padx=16,
@@ -128,11 +128,11 @@ class App(tk.Tk):
             self._nav_btns[key] = btn
 
         # Spacer + version
-        tk.Frame(sb, bg=MARROM_ESCURO).pack(fill="both", expand=True)
-        tk.Frame(sb, bg="#3A2010", height=1).pack(fill="x", padx=20)
+        tk.Frame(sb, bg=AZUL_ESCURO).pack(fill="both", expand=True)
+        tk.Frame(sb, bg="#2E6DA4", height=1).pack(fill="x", padx=20)
         tk.Label(sb, text="v2.0 · MVC Edition",
                  font=(FONT_FAMILY, 8), fg="#5A4A3A",
-                 bg=MARROM_ESCURO).pack(pady=(6, 16))
+                 bg=AZUL_ESCURO).pack(pady=(6, 16))
 
         return sb
 
@@ -140,9 +140,9 @@ class App(tk.Tk):
         map_key = key if key != "form" else None
         for k, btn in self._nav_btns.items():
             if k == map_key:
-                btn.config(bg="#3D1A08", fg=DOURADO)
+                btn.config(bg="#2424B1", fg=DOURADO)
             else:
-                btn.config(bg=MARROM_ESCURO, fg="#B8A898")
+                btn.config(bg=AZUL_ESCURO, fg="#B8A898")
 
     # ── Page routing ──────────────────────────────────────────────────────────
 

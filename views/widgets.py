@@ -44,10 +44,10 @@ class Card(tk.Frame):
             hdr = tk.Frame(self, bg=CREME_CARD)
             hdr.pack(fill="x", padx=PAD_CARD, pady=(PAD_CARD, 4))
             if accent_left:
-                accent = tk.Frame(hdr, bg=MARROM, width=3)
+                accent = tk.Frame(hdr, bg=AZUL, width=3)
                 accent.pack(side="left", fill="y", padx=(0, 8))
             tk.Label(hdr, text=title, font=FONT_SUBHEAD,
-                     fg=MARROM, bg=CREME_CARD).pack(side="left", anchor="w")
+                     fg=AZUL, bg=CREME_CARD).pack(side="left", anchor="w")
             ttk.Separator(self, orient="horizontal").pack(fill="x",
                 padx=PAD_CARD, pady=(0, PAD_CARD//2))
 
@@ -107,10 +107,10 @@ class ScrollFrame(tk.Frame):
 
 class StatCard(tk.Frame):
     def __init__(self, parent, title: str, value: str,
-                 icon: str = "", accent: str = MARROM, **kw):
+                 icon: str = "", accent: str = AZUL, **kw):
         bg = kw.pop("bg", CREME_CARD)
         super().__init__(parent, bg=bg,
-                         highlightbackground=CREME_ESCURO,
+                         highlightbackground=AZUL_ESCURO,
                          highlightthickness=1, **kw)
         top = tk.Frame(self, bg=bg)
         top.pack(fill="x", padx=16, pady=(14, 0))
@@ -129,7 +129,7 @@ class PrimaryBtn(tk.Button):
     def __init__(self, parent, text, command=None, **kw):
         super().__init__(
             parent, text=text, command=command,
-            bg=MARROM, fg=DOURADO, activebackground=MARROM_MED,
+            bg=AZUL, fg=DOURADO, activebackground=AZUL_MED,
             activeforeground=DOURADO, font=FONT_BODY,
             relief="flat", cursor="hand2",
             padx=16, pady=6, **kw)
@@ -167,10 +167,10 @@ def build_treeview(parent, columns: list[tuple], height=18) -> ttk.Treeview:
                     foreground=CINZA_700, rowheight=28,
                     font=FONT_BODY)
     style.configure("Tricot.Treeview.Heading",
-                    background=CINZA_100, foreground=MARROM,
+                    background=CINZA_100, foreground=AZUL,
                     font=FONT_SMALL, relief="flat")
     style.map("Tricot.Treeview",
-              background=[("selected", MARROM)],
+              background=[("selected", AZUL)],
               foreground=[("selected", DOURADO)])
     ids = [c[0] for c in columns]
     tv = ttk.Treeview(parent, columns=ids, show="headings",
