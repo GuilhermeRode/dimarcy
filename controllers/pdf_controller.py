@@ -44,12 +44,12 @@ def gerar(pedido: Pedido, path: str):
     )
 
     s_title  = _ps("t", fontName="Helvetica-Bold", fontSize=22,
-                   textColor=AZUL, spaceAfter=2)
+                   textColor=AZUL, spaceAfter=10)
     s_sub    = _ps("s", fontName="Helvetica", fontSize=9,
                    textColor=CINZA_MED, spaceAfter=6)
     s_sec    = _ps("sec", fontName="Helvetica-Bold", fontSize=10,
                    textColor=AZUL, spaceBefore=14, spaceAfter=5)
-    s_normal = _ps("n", fontName="Helvetica", fontSize=9, leading=14)
+    s_normal = _ps("n", fontName="Helvetica", fontSize=8, leading=14)
     s_footer = _ps("f", fontName="Helvetica", fontSize=7.5,
                    textColor=CINZA_MED, alignment=TA_CENTER)
 
@@ -57,7 +57,7 @@ def gerar(pedido: Pedido, path: str):
 
     # ── Cabeçalho ────────────────────────────────────────────────────────────
     header_data = [[
-        Paragraph(f"<b>{empresa} , "Pedidos"</b>", _ps("h", fontName="Helvetica-Bold",
+        Paragraph(f"<b>{empresa} - Pedidos</b>", _ps("h", fontName="Helvetica-Bold",
                   fontSize=14, textColor=AZUL)),
         Paragraph(
             f"<font color='#888780'>Pedido</font> <b>{pedido.numero}</b><br/>"
@@ -90,17 +90,18 @@ def gerar(pedido: Pedido, path: str):
         ["Nome / Razão Social", pedido.cliente_nome or "—",
          "Cidade / UF", pedido.cliente_cidade or "—"],
     ]
-    ct = Table(cli_data, colWidths=[3.2
-    *cm, 6.5*cm, 2.8*cm, 4.7*cm])
+    ct = Table(cli_data, colWidths=[4*cm, 6*cm, 2.8*cm, 4.7*cm])
     ct.setStyle(TableStyle([
-        ("FONTNAME",    (0,0), (-1,-1), "Helvetica"),
-        ("FONTNAME",    (0,0), (0,-1), "Helvetica-Bold"),
-        ("FONTNAME",    (2,0), (2,-1), "Helvetica-Bold"),
-        ("FONTSIZE",    (0,0), (-1,-1), 8),
-        ("TEXTCOLOR",   (0,0), (0,-1), CINZA_MED),
-        ("TEXTCOLOR",   (2,0), (2,-1), CINZA_MED),
+        ("FONTNAME",    (0,0), (0,-1), "Helvetica-Bold"),    # Negrito
+        ("FONTNAME",    (1,0), (1,-1), "Helvetica"),   
+        ("FONTNAME",    (2,0), (2,-1), "Helvetica-Bold"),    # Negrito
+        ("FONTNAME",    (3,0), (3,-1), "Helvetica"),    
+        ("TEXTCOLOR",   (0,0), (0,-1), "#000000"),           # Preto escuro
+        ("TEXTCOLOR",   (1,0), (1,-1), "#000000"),           # Preto escuro
+        ("TEXTCOLOR",   (2,0), (2,-1), "#000000"),            # Preto escuro
+        ("TEXTCOLOR",   (2,0), (2,-1), "#000000"),
         ("ROWBACKGROUNDS", (0,0), (-1,-1), [CREME, BRANCO]),
-        ("GRID",        (0,0), (-1,-1), 0.4, CINZA_CLR),
+        ("GRID",        (0,0), (-1,-1), 0.4, CINZA_MED),
         ("PADDING",     (0,0), (-1,-1), 6),
     ]))
     story.append(ct)
@@ -112,13 +113,13 @@ def gerar(pedido: Pedido, path: str):
     for it in pedido.itens:
         qtds = [getattr(it, c) for c in _SZ_COLS]
         rows.append([
-            it.referencia, it.descricao, it.cor, it.material,
+            it.referencia, it.descricao, it.cor, 
             *[str(q) if q else "·" for q in qtds],
             str(it.total_pcs),
             f"R${it.preco_unitario:.2f}",
             f"R${it.subtotal:.2f}",
         ])
-    col_w = [1.8*cm, 3*cm, 1.8*cm, 1.8*cm] + [0.8*cm]*7 + [1.1*cm, 1.4*cm, 1.6*cm]
+    col_w = [1.2*cm, 3.5*cm, 3.1*cm] + [0.8*cm]*7 + [1.1*cm, 1.4*cm, 1.6*cm]
     it_t = Table(rows, colWidths=col_w, repeatRows=1)
     it_t.setStyle(TableStyle([
         ("BACKGROUND",  (0,0), (-1,0), AZUL),
@@ -127,7 +128,7 @@ def gerar(pedido: Pedido, path: str):
         ("FONTNAME",    (0,1), (-1,-1), "Helvetica"),
         ("FONTSIZE",    (0,0), (-1,-1), 7),
         ("ROWBACKGROUNDS", (0,1), (-1,-1), [BRANCO, CREME]),
-        ("GRID",        (0,0), (-1,-1), 0.3, CINZA_CLR),
+        ("GRID",        (0,0), (-1,-1), 0.3, AZUL_ESCURO),
         ("ALIGN",       (4,0), (-1,-1), "CENTER"),
         ("PADDING",     (0,0), (-1,-1), 4),
         ("FONTNAME",    (-1,1), (-1,-1), "Helvetica-Bold"),
@@ -135,20 +136,20 @@ def gerar(pedido: Pedido, path: str):
     ]))
     story.append(it_t)
 
-    # ── Totais ────────────────────────────────────────────────────────────────
     story.append(Spacer(1, 0.4*cm))
+    story.append(Paragraph("DADOS DO PEDIDO", s_sec))
     tot_data = [
-        ["Total de peças", str(pedido.total_pecas), "Valor bruto", f"R$ {pedido.valor_bruto:.2f}", "Valor líquido", f"R$ {pedido.valor_liquido:.2f}"],
-        [f"Desconto ({pedido.desconto:.1f}%)", f"- R$ {pedido.valor_bruto - pedido.valor_liquido:.2f}", "Entrada paga", f"R$ {pedido.entrada:.2f}", "Saldo a pagar", f"R$ {pedido.saldo:.2f}"],
+        ["Total de peças", str(pedido.total_pecas), "Valor bruto", f"R$ {pedido.valor_bruto:.2f}"], 
+        [f"Desconto", f"{pedido.desconto:.1f}%" or "-", "Valor líquido", f"R$ {pedido.valor_liquido:.2f}"],
+        ["OBS:", str(pedido.obs_geral)],
     ]
-    tt = Table(tot_data, colWidths=[3*cm, 2.8*cm, 3*cm, 2.8*cm, 3*cm, 2.8*cm])
+    tt = Table(tot_data, colWidths=[4*cm, 3.5*cm, 3.5*cm, 4*cm, 8*cm])
     tt.setStyle(TableStyle([
-        ("FONTNAME",   (0,0), (-1,-1), "Helvetica"),
         ("FONTNAME",   (0,0), (0,-1), "Helvetica-Bold"),
         ("FONTNAME",   (2,0), (2,-1), "Helvetica-Bold"),
         ("FONTSIZE",   (0,0), (-1,-1), 8),
         ("BACKGROUND", (0,0), (-1,-1), BRANCO),
-        ("GRID",       (0,0), (-1,-1), 0.4, CINZA_CLR),
+        ("GRID",       (0,0), (-1,-1), 0.4, AZUL_ESCURO),
         ("PADDING",    (0,0), (-1,-1), 6),
         ("FONTNAME",   (3,2), (3,2), "Helvetica-Bold"),
         ("TEXTCOLOR",  (3,2), (3,2), AZUL),
@@ -167,16 +168,16 @@ def gerar(pedido: Pedido, path: str):
     if pedido.obs_entrega or pedido.obs_pgto:
         pg_data.append(["Obs. entrega", pedido.obs_entrega or "—",
                          "Obs. pgto", pedido.obs_pgto or "—"])
-    pgt = Table(pg_data, colWidths=[3.2*cm, 6*cm, 2.8*cm, 5.2*cm])
+    pgt = Table(pg_data, colWidths=[3.5*cm, 5*cm, 2.8*cm, 5.2*cm])
     pgt.setStyle(TableStyle([
         ("FONTNAME",   (0,0), (-1,-1), "Helvetica"),
         ("FONTNAME",   (0,0), (0,-1), "Helvetica-Bold"),
         ("FONTNAME",   (2,0), (2,-1), "Helvetica-Bold"),
         ("FONTSIZE",   (0,0), (-1,-1), 9),
-        ("TEXTCOLOR",  (0,0), (0,-1), CINZA_MED),
-        ("TEXTCOLOR",  (2,0), (2,-1), CINZA_MED),
+        ("TEXTCOLOR",  (0,0), (0,-1), "#000000"),
+        ("TEXTCOLOR",  (2,0), (2,-1), "#000000"),
         ("ROWBACKGROUNDS", (0,0), (-1,-1), [CREME, BRANCO]),
-        ("GRID",       (0,0), (-1,-1), 0.4, CINZA_CLR),
+        ("GRID",       (0,0), (-1,-1), 0.4, AZUL_ESCURO),
         ("PADDING",    (0,0), (-1,-1), 6),
     ]))
     story.append(pgt)

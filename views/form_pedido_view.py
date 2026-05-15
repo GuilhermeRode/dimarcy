@@ -10,13 +10,12 @@ from views.widgets import (Card, ScrollFrame, PrimaryBtn, SecondaryBtn,
                             DangerBtn, Field)
 from models.pedido_model import Pedido, ItemPedido, TAMANHOS, _SZ_COLS
 
-STATUS_OPTS = ["Rascunho","Confirmado","Em produção","Pronto","Entregue","Cancelado"]
+STATUS_OPTS = ["Em produção","Pronto","Entregue","Cancelado"]
 ENTREGAS    = ["Retirada na fábrica","Transportadora","Correios PAC",
                "Correios SEDEX","Entrega própria"]
 FORMAS_PGTO = ["À vista — PIX","À vista — transferência","À vista — dinheiro",
-               "Boleto 30 dias","Boleto 30/60 dias","Boleto 30/60/90 dias",
-               "Cartão de crédito","Parcelado"]
-PRAZOS_PGTO = ["No ato","Na entrega","30 dias","30/60 dias","30/60/90 dias"]
+               "Boleto","Cartão de crédito"]
+PRAZOS_PGTO = ["Na entrega","30","30/60", "30/60/90", "30/60/90/120", "30/60/90/120/150", "quinzenal"]
 
 
 class FormPedidoView(tk.Frame):
@@ -196,7 +195,7 @@ class FormPedidoView(tk.Frame):
         self._obs_entrega = self._lbl_text(body, "Observações de entrega")
 
     def _build_pagamento(self, parent):
-        for k in ["forma_pgto","prazo_pgto","desconto","entrada"]:
+        for k in ["forma_pgto","prazo_pgto","desconto"]:
             self._v[k] = tk.StringVar()
         body = self._section(parent, "💳  Pagamento")
         r = tk.Frame(body, bg=CREME_CARD)
@@ -205,7 +204,7 @@ class FormPedidoView(tk.Frame):
             ("Forma de pagamento", "forma_pgto", FORMAS_PGTO),
             ("Prazo de pagamento", "prazo_pgto", PRAZOS_PGTO),
             ("Desconto (%)", "desconto", None),
-            ("Entrada (R$)", "entrada", None),
+            
         ]
         for i, (lbl, key, opts) in enumerate(fields):
             f = tk.Frame(r, bg=CREME_CARD)
@@ -414,7 +413,6 @@ class _ItemRow(tk.Frame):
             ("Referência / código", "referencia", 2),
             ("Descrição", "descricao", 3),
             ("Cor", "cor", 2),
-            ("Material", "material", 2),
             ("Preço unitário R$", "preco", 1),
         ]
         for i, (lbl, key, weight) in enumerate(fields):
@@ -526,6 +524,6 @@ PRODUTOS_MOCK = {
     "2001": {
         "descricao": "Blusa térmica feminina",
         "preco": 39.8
-        
+
     }
 }
