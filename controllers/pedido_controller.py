@@ -21,6 +21,8 @@ class PedidoController:
     def dashboard(self) -> dict:
         return pedido_model.dashboard_stats()
 
+    def ranking_referencias(self, limit: int = 10) -> list[dict]:
+            return pedido_model.referencias_mais_vendidas(limit)
     # ── CRUD ─────────────────────────────────────────────────────────────────
 
     def novo(self) -> Pedido:

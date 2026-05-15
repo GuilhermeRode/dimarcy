@@ -104,6 +104,21 @@ class ListaView(tk.Frame):
         st_cb.bind("<<ComboboxSelected>>", self._change_status)
 
     # ── Actions ──────────────────────────────────────────────────────────────
+    def _configure_columns(self):
+        self._tree.heading("cliente_nome", anchor="center")
+        self._tree.heading("numero", anchor="center")
+        self._tree.heading("dt_pedido", anchor="center")
+        self._tree.heading("dt_entrega", anchor="center")
+        self._tree.heading("total_pecas", anchor="center")
+        self._tree.heading("total_valor", anchor="center")
+        self._tree.heading("status", anchor="center")
+        self._tree.column("cliente_nome", anchor="center")
+        self._tree.column("numero", anchor="center")
+        self._tree.column("dt_pedido", anchor="center")
+        self._tree.column("dt_entrega", anchor="center")
+        self._tree.column("total_pecas", anchor="center")
+        self._tree.column("total_valor", anchor="center")
+        self._tree.column("status", anchor="center")
 
     def refresh(self):
         for r in self._tree.get_children():

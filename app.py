@@ -131,7 +131,7 @@ class App(tk.Tk):
         tk.Frame(sb, bg=AZUL_ESCURO).pack(fill="both", expand=True)
         tk.Frame(sb, bg="#2E6DA4", height=1).pack(fill="x", padx=20)
         tk.Label(sb, text="v2.0 · MVC Edition",
-                 font=(FONT_FAMILY, 8), fg="#5A4A3A",
+                 font=(FONT_FAMILY, 8), fg="#919191",
                  bg=AZUL_ESCURO).pack(pady=(6, 16))
 
         return sb

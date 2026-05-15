@@ -243,6 +243,7 @@ class FormPedidoView(tk.Frame):
 
         self._itens_frame = tk.Frame(card, bg=CREME_CARD)
         self._itens_frame.pack(fill="x", padx=PAD_CARD, pady=(6, PAD_CARD))
+    
 
     def _build_obs(self, parent):
         body = self._section(parent, "📝  Observações gerais")
@@ -317,7 +318,6 @@ class FormPedidoView(tk.Frame):
         for vk, pk in mapa.items():
             self._v[vk].set(str(getattr(p, pk) or ""))
         self._v["desconto"].set(str(p.desconto or ""))
-        self._v["entrada"].set(str(p.entrada or ""))
         self._obs_entrega.insert("1.0", p.obs_entrega or "")
         self._obs_pgto.insert("1.0", p.obs_pgto or "")
         self._obs_geral.insert("1.0", p.obs_geral or "")
@@ -345,10 +345,7 @@ class FormPedidoView(tk.Frame):
             p.desconto = float(self._v["desconto"].get() or 0)
         except ValueError:
             p.desconto = 0
-        try:
-            p.entrada = float(self._v["entrada"].get() or 0)
-        except ValueError:
-            p.entrada = 0
+        
         p.itens = [r.to_item() for r in self._item_rows]
         return p
 
@@ -406,7 +403,7 @@ class _ItemRow(tk.Frame):
         body = tk.Frame(self, bg=CINZA_100)
         body.pack(fill="x", padx=10, pady=8)
 
-        # Row 1: ref, descrição, cor, material, preço
+        # Row 1: ref, descrição, cor, preço
         r1 = tk.Frame(body, bg=CINZA_100)
         r1.pack(fill="x", pady=(0, 6))
         fields = [
@@ -461,7 +458,6 @@ class _ItemRow(tk.Frame):
         self._vs["referencia"].set(item.referencia)
         self._vs["descricao"].set(item.descricao)
         self._vs["cor"].set(item.cor)
-        self._vs["material"].set(item.material)
         self._vs["preco"].set(str(item.preco_unitario) if item.preco_unitario else "")
         for size, col in zip(TAMANHOS, _SZ_COLS):
             self._sz[size].set(str(getattr(item, col, 0)))
@@ -493,7 +489,6 @@ class _ItemRow(tk.Frame):
         item.referencia = self._vs["referencia"].get()
         item.descricao  = self._vs["descricao"].get()
         item.cor        = self._vs["cor"].get()
-        item.material   = self._vs["material"].get()
         try:
             item.preco_unitario = float(self._vs["preco"].get() or 0)
         except ValueError:
@@ -516,7 +511,7 @@ PRODUTOS_MOCK = {
         "preco": 139.80
     },
 
-    "1003": {
+    "1164": {
         "descricao": "Blusa sweet friso",
         "preco": 139.80
     },

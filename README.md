@@ -55,7 +55,7 @@ tricot_pedidos/
 | Dashboard     | Estatísticas gerais, faturamento, pedidos por status        |
 | Pedidos       | Lista com busca, filtro por status, alteração rápida        |
 | Novo pedido   | Cliente, datas, entrega, pagamento, grade PP→Único          |
-| Itens         | N referências por pedido, cor, material, preço e tamanhos   |
+| Itens         | N referências por pedido, cor, preço e tamanhos   |
 | Totais        | Cálculo automático com desconto                             |
 | PDF           | Documento A4 profissional com tabela de tamanhos            |
 | Clientes      | Histórico com total de pedidos e valor gasto                |
