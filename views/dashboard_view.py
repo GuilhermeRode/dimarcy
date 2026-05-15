@@ -48,7 +48,6 @@ class DashboardView(tk.Frame):
 
         # Recentes card
         rec_card = Card(bottom, title="Pedidos recentes", accent_left=True)
-        rec_card.grid(row=0, column=1, sticky="nsew")
         rec_card.grid(row=0, column=1, sticky="nsew", padx=(0, 10))
         rec_body = rec_card.body()
 
@@ -77,24 +76,24 @@ class DashboardView(tk.Frame):
 
     def _configure_tree_columns(self):
         self._rec_tree.heading("numero", anchor="center")
-        self._rec_tree.heading("cliente_nome", anchor="center")
+        self._rec_tree.heading("cliente_nome", anchor="w")
         self._rec_tree.heading("total_valor", anchor="e")
         self._rec_tree.heading("status", anchor="center")
         self._rec_tree.heading("dt_entrega", anchor="center")
         self._rec_tree.column("numero", anchor="center")
-        self._rec_tree.column("cliente_nome", anchor="center")
+        self._rec_tree.column("cliente_nome", anchor="w")
         self._rec_tree.column("total_valor", anchor="e")
         self._rec_tree.column("status", anchor="center")
         self._rec_tree.column("dt_entrega", anchor="center")
 
         self._rank_tree.heading("pos", anchor="center")
         self._rank_tree.heading("referencia", anchor="center")
-        self._rank_tree.heading("descricao", anchor="center")
-        self._rank_tree.heading("total_pecas", anchor="center")
+        self._rank_tree.heading("descricao", anchor="w")
+        self._rank_tree.heading("total_pecas", anchor="e")
         self._rank_tree.column("pos", anchor="center", width=42, minwidth=40)
         self._rank_tree.column("referencia", anchor="center")
-        self._rank_tree.column("descricao", anchor="center")
-        self._rank_tree.column("total_pecas", anchor="center")
+        self._rank_tree.column("descricao", anchor="w")
+        self._rank_tree.column("total_pecas", anchor="e")
 
     def refresh(self):
         stats = self.ctrl.dashboard()

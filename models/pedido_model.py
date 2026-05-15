@@ -59,6 +59,7 @@ class Pedido:
     desconto:       float = 0.0
     obs_pgto:       str  = ""
     obs_geral:      str  = ""
+    vendedor:       str  = ""
     status:         str  = "Rascunho"
     numero:         str  = ""
     id: Optional[int]    = None
@@ -131,7 +132,7 @@ def salvar(p: Pedido) -> int:
     campos = ("cliente_nome","cliente_doc","cliente_tel","cliente_email",
               "cliente_end","cliente_cidade","dt_pedido","dt_entrega",
               "tipo_entrega","obs_entrega","forma_pgto","prazo_pgto",
-              "desconto","obs_pgto","obs_geral","status")
+              "desconto","entrada","obs_pgto","obs_geral","vendedor","status")
     vals = tuple(getattr(p, c) for c in campos)
     total_pcs = p.total_pecas
     total_val = p.valor_liquido
@@ -221,6 +222,7 @@ def dashboard_stats() -> dict:
         "recentes": [dict(r) for r in recentes],
     }
 
+
 def referencias_mais_vendidas(limit: int = 10) -> list[dict]:
     con = get_connection()
     rows = con.execute("""
@@ -235,4 +237,3 @@ def referencias_mais_vendidas(limit: int = 10) -> list[dict]:
     """, (limit,)).fetchall()
     con.close()
     return [dict(r) for r in rows]
-

@@ -16,6 +16,7 @@ ENTREGAS    = ["Retirada na fábrica","Transportadora","Correios PAC",
 FORMAS_PGTO = ["À vista — PIX","À vista — transferência","À vista — dinheiro",
                "Boleto","Cartão de crédito"]
 PRAZOS_PGTO = ["Na entrega","30","30/60", "30/60/90", "30/60/90/120", "30/60/90/120/150", "quinzenal"]
+VENDEDORES = ["Ana", "Bruno", "Carla", "Diego", "Equipe interna"]
 
 
 class FormPedidoView(tk.Frame):
@@ -47,6 +48,7 @@ class FormPedidoView(tk.Frame):
         self._build_datas(body)
         self._build_pagamento(body)
         self._build_itens(body)
+        self._build_ranking(body)
         self._build_obs(body)
 
         # Padding final
@@ -195,7 +197,7 @@ class FormPedidoView(tk.Frame):
         self._obs_entrega = self._lbl_text(body, "Observações de entrega")
 
     def _build_pagamento(self, parent):
-        for k in ["forma_pgto","prazo_pgto","desconto"]:
+        for k in ["forma_pgto","prazo_pgto","desconto","vendedor"]:
             self._v[k] = tk.StringVar()
         body = self._section(parent, "💳  Pagamento")
         r = tk.Frame(body, bg=CREME_CARD)
@@ -203,8 +205,8 @@ class FormPedidoView(tk.Frame):
         fields = [
             ("Forma de pagamento", "forma_pgto", FORMAS_PGTO),
             ("Prazo de pagamento", "prazo_pgto", PRAZOS_PGTO),
+            ("Vendedor", "vendedor", VENDEDORES),
             ("Desconto (%)", "desconto", None),
-            
         ]
         for i, (lbl, key, opts) in enumerate(fields):
             f = tk.Frame(r, bg=CREME_CARD)
@@ -245,6 +247,29 @@ class FormPedidoView(tk.Frame):
         self._itens_frame.pack(fill="x", padx=PAD_CARD, pady=(6, PAD_CARD))
     
 
+    def _build_ranking(self, parent):
+        body = self._section(parent, "🏆  Referências mais vendidas")
+        cols = [("pos","#",40), ("referencia","Referência",120),
+                ("descricao","Descrição",220), ("total_pecas","Peças",80)]
+        self._ranking_tree = ttk.Treeview(body, columns=[c[0] for c in cols], show="headings", height=8)
+        for key, title, width in cols:
+            self._ranking_tree.heading(key, text=title)
+            anchor = "center" if key in {"pos", "total_pecas"} else "w"
+            self._ranking_tree.column(key, width=width, anchor=anchor, stretch=(key == "descricao"))
+        self._ranking_tree.pack(fill="x", pady=(2, 2))
+
+    def _refresh_ranking(self):
+        if not hasattr(self, "_ranking_tree"):
+            return
+        for row in self._ranking_tree.get_children():
+            self._ranking_tree.delete(row)
+        for idx, row in enumerate(self.ctrl.ranking_referencias(10), start=1):
+            self._ranking_tree.insert("", "end", values=(
+                idx,
+                row.get("referencia", ""),
+                row.get("descricao", "") or "—",
+                row.get("total_pecas", 0),
+            ))
     def _build_obs(self, parent):
         body = self._section(parent, "📝  Observações gerais")
         self._obs_geral = self._lbl_text(body, "Informações adicionais, embalagem, etc.", height=3)
@@ -259,6 +284,7 @@ class FormPedidoView(tk.Frame):
         row.pack(fill="x", pady=(0, 8))
         self._item_rows.append(row)
         self._recalc()
+        self._refresh_ranking()
 
     def _remove_item(self, row: "_ItemRow"):
         self._item_rows.remove(row)
@@ -297,6 +323,7 @@ class FormPedidoView(tk.Frame):
             r.destroy()
         self._item_rows.clear()
         self._recalc()
+        self._refresh_ranking()
 
     def carregar(self, pedido_id: int):
         self.novo()
@@ -313,7 +340,7 @@ class FormPedidoView(tk.Frame):
             "cli_end":"cliente_end","cli_cidade":"cliente_cidade",
             "dt_pedido":"dt_pedido","dt_entrega":"dt_entrega",
             "tipo_entrega":"tipo_entrega","forma_pgto":"forma_pgto",
-            "prazo_pgto":"prazo_pgto",
+            "prazo_pgto":"prazo_pgto","vendedor":"vendedor",
         }
         for vk, pk in mapa.items():
             self._v[vk].set(str(getattr(p, pk) or ""))
@@ -340,6 +367,7 @@ class FormPedidoView(tk.Frame):
         p.prazo_pgto    = self._v["prazo_pgto"].get()
         p.obs_pgto      = self._obs_pgto.get("1.0","end-1c")
         p.obs_geral     = self._obs_geral.get("1.0","end-1c")
+        p.vendedor      = self._v["vendedor"].get()
         p.status        = self._status_var.get()
         try:
             p.desconto = float(self._v["desconto"].get() or 0)
@@ -358,6 +386,7 @@ class FormPedidoView(tk.Frame):
             self.app.refresh_lista()
             from tkinter import messagebox
             messagebox.showinfo("Salvo", f"Pedido {p.numero} salvo com sucesso!")
+            self._refresh_ranking()
 
     def _pdf(self):
         p = self._collect()
@@ -429,6 +458,13 @@ class _ItemRow(tk.Frame):
             else:
                 e.bind("<KeyRelease>", lambda _: self._on_change())
 
+        # Cores disponíveis da referência
+        self._cores_paleta = tk.Frame(body, bg=CINZA_100)
+        self._cores_paleta.pack(fill="x", pady=(0, 6))
+        tk.Label(self._cores_paleta, text="Cores disponíveis:", font=FONT_LABEL, fg=CINZA_500, bg=CINZA_100).pack(side="left", padx=(0, 8))
+        self._cores_dots = tk.Frame(self._cores_paleta, bg=CINZA_100)
+        self._cores_dots.pack(side="left")
+
         # Row 2: tamanhos
         r2 = tk.Frame(body, bg=CINZA_100)
         r2.pack(fill="x")
@@ -458,6 +494,8 @@ class _ItemRow(tk.Frame):
         self._vs["referencia"].set(item.referencia)
         self._vs["descricao"].set(item.descricao)
         self._vs["cor"].set(item.cor)
+        self._render_cores([c.strip() for c in str(item.cor or "").split(",") if c.strip()])
+        self._vs["material"].set(item.material)
         self._vs["preco"].set(str(item.preco_unitario) if item.preco_unitario else "")
         for size, col in zip(TAMANHOS, _SZ_COLS):
             self._sz[size].set(str(getattr(item, col, 0)))
@@ -472,8 +510,22 @@ class _ItemRow(tk.Frame):
 
         self._vs["descricao"].set(produto["descricao"])
         self._vs["preco"].set(f'{produto["preco"]:.2f}')
+        self._render_cores(produto.get("cores", []))
 
         self._on_change()
+
+    def _render_cores(self, cores: list[str]):
+        for w in self._cores_dots.winfo_children():
+            w.destroy()
+        if not cores:
+            tk.Label(self._cores_dots, text="—", font=FONT_LABEL, fg=CINZA_500, bg=CINZA_100).pack(side="left")
+            return
+        mapa = {"preto":"#1F1F1F","branco":"#F5F5F5","azul":"#1E4FA1","vermelho":"#C62828","verde":"#2E7D32","rosa":"#E91E63","bege":"#D7B899","cinza":"#9E9E9E","vinho":"#7B1E3F"}
+        for c in cores:
+            cor = mapa.get(c.lower(), "#607D8B")
+            cv = tk.Canvas(self._cores_dots, width=14, height=14, bg=CINZA_100, highlightthickness=0)
+            cv.create_oval(2,2,12,12, fill=cor, outline="#666")
+            cv.pack(side="left", padx=2)
 
     def totals(self) -> tuple[int, float]:
         pcs = sum(int(v.get() or 0) for v in self._sz.values())
@@ -503,22 +555,26 @@ class _ItemRow(tk.Frame):
 PRODUTOS_MOCK = {
     "1130": {
         "descricao": "Calça fusô",
-        "preco": 109.8
+        "preco": 109.8,
+        "cores": ["preto", "azul", "vinho"]
         },
 
     "1163": {
         "descricao": "Calça sweet friso",
-        "preco": 139.80
+        "preco": 139.80,
+        "cores": ["preto", "bege", "cinza"]
     },
 
     "1164": {
         "descricao": "Blusa sweet friso",
-        "preco": 139.80
+        "preco": 139.80,
+        "cores": ["rosa", "preto", "branco"]
     },
 
     "2001": {
         "descricao": "Blusa térmica feminina",
-        "preco": 39.8
+        "preco": 39.8,
+        "cores": ["branco", "preto", "vermelho", "verde"]
 
     }
 }

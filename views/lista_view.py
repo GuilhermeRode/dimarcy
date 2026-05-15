@@ -68,6 +68,7 @@ class ListaView(tk.Frame):
             ("status",      "Status",   120),
         ]
         self._tree = build_treeview(tree_frame, cols, height=22)
+        self._configure_columns()
 
         sb = ttk.Scrollbar(tree_frame, orient="vertical",
                            command=self._tree.yview)
@@ -102,6 +103,11 @@ class ListaView(tk.Frame):
                               font=FONT_SMALL)
         st_cb.pack(side="right", pady=8, padx=4)
         st_cb.bind("<<ComboboxSelected>>", self._change_status)
+
+    def _configure_columns(self):
+        for c in ("numero","cliente_nome","dt_pedido","dt_entrega","total_pecas","total_valor","status"):
+            self._tree.heading(c, anchor="center")
+            self._tree.column(c, anchor="center")
 
     # ── Actions ──────────────────────────────────────────────────────────────
     def _configure_columns(self):
