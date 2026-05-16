@@ -32,6 +32,24 @@ def init_db():
     INSERT OR IGNORE INTO config VALUES ('empresa_end',  '');
     INSERT OR IGNORE INTO config VALUES ('ultimo_numero','0');
 
+    CREATE TABLE IF NOT EXISTS usuarios (
+        id      INTEGER PRIMARY KEY AUTOINCREMENT,
+        usuario TEXT UNIQUE NOT NULL,
+        senha   TEXT NOT NULL,
+        ativo   INTEGER DEFAULT 1
+    );
+
+    CREATE TABLE IF NOT EXISTS clientes (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome          TEXT NOT NULL,
+        doc           TEXT,
+        tel           TEXT,
+        email         TEXT,
+        endereco      TEXT,
+        cidade        TEXT,
+        criado_em     TEXT
+    );
+
     CREATE TABLE IF NOT EXISTS pedidos (
         id          INTEGER PRIMARY KEY AUTOINCREMENT,
         numero      TEXT UNIQUE NOT NULL,
@@ -75,18 +93,28 @@ def init_db():
         FOREIGN KEY(pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE
     );
     """)
-    # migração leve para bases antigas
+
+    # Seed default admin user (usuario: admin, senha: 1234)
+    cur.execute(
+        "INSERT OR IGNORE INTO usuarios (usuario, senha, ativo) VALUES (?,?,1)",
+        ("admin", _hash("1234"))
+    )
+
+    # Migração leve para bases antigas
     cols = [r[1] for r in con.execute("PRAGMA table_info(pedidos)").fetchall()]
     if "vendedor" not in cols:
         con.execute("ALTER TABLE pedidos ADD COLUMN vendedor TEXT")
+
     con.commit()
     con.close()
 
 
 def autenticar(usuario: str, senha: str) -> dict | None:
     con = get_connection()
+    # Suporte a login hardcoded legado + banco
     row = con.execute(
         "SELECT * FROM usuarios WHERE usuario=? AND senha=? AND ativo=1",
-        (usuario, _hash(senha))).fetchone()
+        (usuario, _hash(senha))
+    ).fetchone()
     con.close()
     return dict(row) if row else None

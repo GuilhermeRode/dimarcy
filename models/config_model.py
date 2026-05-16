@@ -9,7 +9,8 @@ def get(chave: str, default: str = "") -> str:
 def set_value(chave: str, valor: str):
     con = get_connection()
     con.execute("INSERT OR REPLACE INTO config VALUES (?,?)", (chave, valor))
-    con.commit(); con.close()
+    con.commit()
+    con.close()
 
 def get_all() -> dict:
     con = get_connection()
@@ -18,6 +19,6 @@ def get_all() -> dict:
     return {r["chave"]: r["valor"] for r in rows}
 
 def novo_numero() -> str:
-    n = int(get("ultimo_numero","0")) + 1
+    n = int(get("ultimo_numero", "0")) + 1
     set_value("ultimo_numero", str(n))
     return f"PED-{n:05d}"

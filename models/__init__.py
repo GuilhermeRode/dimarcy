@@ -1,2 +1,1 @@
-
-__all__ = ["init_db", "get_connection", "pedido_model", "config_model"]
+__all__ = ["init_db", "get_connection", "pedido_model", "config_model", "cliente_model"]

@@ -29,7 +29,6 @@ class StatusBadge(tk.Frame):
 class Card(tk.Frame):
     """Frame card com borda suave e título opcional com acento lateral."""
     def __init__(self, parent, title: str = "", accent_left: bool = False, **kw):
-        # Remove 'bg' de kw para evitar argumento duplicado
         bg = kw.pop("bg", CREME_CARD)
         super().__init__(parent, bg=bg,
                          highlightbackground=CREME_ESCURO,
@@ -192,7 +191,6 @@ class ColorDot(tk.Canvas):
         self.create_oval(pad, pad, self.SIZE - pad, self.SIZE - pad,
                          fill=self.hex_cor, outline=outline, width=width)
         if selected:
-            # check mark
             self.create_text(self.SIZE // 2, self.SIZE // 2,
                              text="✓", fill="white" if self._is_dark() else "#222",
                              font=("Segoe UI", 8, "bold"))

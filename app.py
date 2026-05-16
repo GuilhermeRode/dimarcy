@@ -15,6 +15,7 @@ import os
 # Garante que os imports relativos funcionem independente de onde o script é chamado
 sys.path.insert(0, os.path.dirname(__file__))
 
+from dimarcy.views.producao_view import ProducaoView
 from models.database import init_db
 from models import config_model
 from controllers.pedido_controller import PedidoController, ConfigController
@@ -83,6 +84,10 @@ class App(tk.Tk):
             self._content, self._pedido_ctrl, self)
         self._pages["clientes"] = ClientesView(
             self._content, self._pedido_ctrl, self)
+        self._pages["producao"] = ProducaoView(
+            self.container,
+            app=self
+)
         self._pages["config"] = ConfigView(
             self._content, self._config_ctrl, self)
 
@@ -185,6 +190,8 @@ class App(tk.Tk):
         # Update empresa label
         self._empresa_lbl.config(text=config_model.get("empresa_nome"))
 
+    def nova_producao(self):
+        self.show_page("producao")
 
 # ── Entry point ───────────────────────────────────────────────────────────────
 

@@ -29,12 +29,10 @@ class ItemPedido:
     @property
     def subtotal(self):
         return self.total_pcs * self.preco_unitario
+
     @property
     def total_pcs(self):
-        return sum(
-            getattr(self, col, 0)
-            for col in _SZ_COLS
-        )
+        return sum(getattr(self, col, 0) for col in _SZ_COLS)
 
 
 @dataclass
@@ -73,15 +71,6 @@ class Pedido:
         return self.valor_bruto * (1 - self.desconto / 100)
 
 
-
-    # ── Repository ──────────────────────────────────────────────────────────────────
-
-    @staticmethod
-    def _row_to_pedido(row) -> Pedido:
-        return Pedido(**{k: row[k] for k in Pedido.__dataclass_fields__
-                        if k not in ("itens",) and k in row.keys()})
-
-
 def listar(busca: str = "", status: str = "") -> list[dict]:
     con = get_connection()
     q = """SELECT id, numero, cliente_nome, dt_pedido, dt_entrega,
@@ -105,19 +94,19 @@ def listar(busca: str = "", status: str = "") -> list[dict]:
 
 
 def buscar(pedido_id: int) -> Optional[Pedido]:
-        con = get_connection()
-        row = con.execute("SELECT * FROM pedidos WHERE id=?", (pedido_id,)).fetchone()
-        if not row:
-            con.close()
-            return None
-        p = Pedido(**{k: row[k] for k in Pedido.__dataclass_fields__
-                    if k not in ("itens",) and k in row.keys()})
-        irows = con.execute(
-            "SELECT * FROM itens_pedido WHERE pedido_id=?", (pedido_id,)).fetchall()
-        p.itens = [ItemPedido(**{k: r[k] for k in ItemPedido.__dataclass_fields__
-                                if k in r.keys()}) for r in irows]
+    con = get_connection()
+    row = con.execute("SELECT * FROM pedidos WHERE id=?", (pedido_id,)).fetchone()
+    if not row:
         con.close()
-        return p
+        return None
+    p = Pedido(**{k: row[k] for k in Pedido.__dataclass_fields__
+                if k not in ("itens",) and k in row.keys()})
+    irows = con.execute(
+        "SELECT * FROM itens_pedido WHERE pedido_id=?", (pedido_id,)).fetchall()
+    p.itens = [ItemPedido(**{k: r[k] for k in ItemPedido.__dataclass_fields__
+                            if k in r.keys()}) for r in irows]
+    con.close()
+    return p
 
 
 def salvar(p: Pedido) -> int:
@@ -151,102 +140,74 @@ def salvar(p: Pedido) -> int:
         p.id = pid
 
     for it in p.itens:
-
         con.execute("""
             INSERT INTO itens_pedido (
-                pedido_id,
-                referencia,
-                descricao,
-                cor,
-                preco_unitario,
-                qtd_pp,
-                qtd_p,
-                qtd_m,
-                qtd_g,
-                qtd_gg,
-                qtd_xgg,
-                qtd_unico
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)
-        """, (
-            pid,
-            it.referencia,
-            it.descricao,
-            it.cor,
-            it.preco_unitario,
-            it.qtd_pp,
-            it.qtd_p,
-            it.qtd_m,
-            it.qtd_g,
-            it.qtd_gg,
-            it.qtd_xgg,
-            it.qtd_unico
-        ))
+                pedido_id, referencia, descricao, cor, preco_unitario,
+                qtd_pp, qtd_p, qtd_m, qtd_g, qtd_gg, qtd_xgg, qtd_unico
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (pid, it.referencia, it.descricao, it.cor, it.preco_unitario,
+              it.qtd_pp, it.qtd_p, it.qtd_m, it.qtd_g, it.qtd_gg,
+              it.qtd_xgg, it.qtd_unico))
 
+    con.commit()
     con.close()
-
-def dashboard_stats() -> dict:
-    con = sqlite3.connect(DB_PATH)
-    con.row_factory = sqlite3.Row
-    total = con.execute("SELECT COUNT(*) FROM pedidos").fetchone()[0]
-    faturamento = con.execute(
-        "SELECT COALESCE(SUM(total_valor),0) FROM pedidos WHERE status != 'Cancelado'"
-    ).fetchone()[0]
-    em_prod = con.execute(
-        "SELECT COUNT(*) FROM pedidos WHERE status='Em produção'"
-    ).fetchone()[0]
-    a_entregar = con.execute(
-        "SELECT COUNT(*) FROM pedidos WHERE status IN ('Pronto','Confirmado')"
-    ).fetchone()[0]
-    por_status = con.execute("""
-        SELECT status, COUNT(*) as qtd FROM pedidos GROUP BY status
-    """).fetchall()
-    recentes = con.execute("""
-        SELECT numero, cliente_nome, total_valor, status, dt_entrega
-        FROM pedidos ORDER BY id DESC LIMIT 5
-    """).fetchall()
-    con.close()
-    return {
-        "total": total,
-        "faturamento": faturamento,
-        "em_producao": em_prod,
-        "a_entregar": a_entregar,
-        "por_status": [dict(r) for r in por_status],
-        "recentes": [dict(r) for r in recentes],
-    }
-
-
-def referencias_mais_vendidas(limit: int = 10) -> list[dict]:
-    con = get_connection()
-    rows = con.execute("""
-        SELECT referencia,
-            MAX(COALESCE(descricao, '')) as descricao,
-            SUM(COALESCE(total_pcs, 0)) as total_pecas
-        FROM itens_pedido
-        WHERE TRIM(COALESCE(referencia, '')) != ''
-        GROUP BY referencia
-        ORDER BY total_pecas DESC, referencia ASC
-        LIMIT ?
-    """, (limit,)).fetchall()
-    con.close()
-    return [dict(r) for r in rows]
+    return pid
 
 
 def excluir(pedido_id: int):
     con = get_connection()
-    con.execute("DELETE FROM itens_pedido WHERE pedido_id=?",(pedido_id,))
-    con.execute("DELETE FROM pedidos WHERE id=?",(pedido_id,))
-    con.commit(); con.close()
+    con.execute("DELETE FROM itens_pedido WHERE pedido_id=?", (pedido_id,))
+    con.execute("DELETE FROM pedidos WHERE id=?", (pedido_id,))
+    con.commit()
+    con.close()
 
 
 def clientes_unicos() -> list[dict]:
+    """Retorna clientes da tabela dedicada + histórico de pedidos."""
     con = get_connection()
-    rows = con.execute("""
-        SELECT cliente_nome,cliente_doc,cliente_tel,cliente_email,cliente_cidade,
+    # Clientes cadastrados
+    cadastrados = {r["nome"]: dict(r) for r in con.execute("SELECT * FROM clientes ORDER BY nome").fetchall()}
+    # Histórico agregado por nome
+    hist = {r["cliente_nome"]: dict(r) for r in con.execute("""
+        SELECT cliente_nome, cliente_doc, cliente_tel, cliente_email, cliente_cidade,
                COUNT(*) as total_pedidos, SUM(total_valor) as total_gasto
-        FROM pedidos GROUP BY cliente_nome,cliente_doc ORDER BY cliente_nome
-    """).fetchall()
-    con.close(); return [dict(r) for r in rows]
+        FROM pedidos GROUP BY cliente_nome ORDER BY cliente_nome
+    """).fetchall()}
+    con.close()
+
+    resultado = []
+    vistos = set()
+
+    # Primeiro, clientes cadastrados (com dados completos)
+    for nome, c in cadastrados.items():
+        h = hist.get(nome, {})
+        resultado.append({
+            "cliente_nome": c["nome"],
+            "cliente_doc":  c["doc"] or "",
+            "cliente_tel":  c["tel"] or "",
+            "cliente_email":c["email"] or "",
+            "cliente_end":  c.get("endereco","") or "",
+            "cliente_cidade":c["cidade"] or "",
+            "total_pedidos": h.get("total_pedidos", 0),
+            "total_gasto":   h.get("total_gasto", 0.0),
+        })
+        vistos.add(nome)
+
+    # Depois, clientes que aparecem só em pedidos
+    for nome, h in hist.items():
+        if nome not in vistos:
+            resultado.append({
+                "cliente_nome": nome,
+                "cliente_doc":  h.get("cliente_doc","") or "",
+                "cliente_tel":  h.get("cliente_tel","") or "",
+                "cliente_email":h.get("cliente_email","") or "",
+                "cliente_end":  "",
+                "cliente_cidade":h.get("cliente_cidade","") or "",
+                "total_pedidos": h.get("total_pedidos", 0),
+                "total_gasto":   h.get("total_gasto", 0.0),
+            })
+
+    return sorted(resultado, key=lambda x: x["cliente_nome"])
 
 
 def dashboard_stats() -> dict:
@@ -273,18 +234,10 @@ def dashboard_stats() -> dict:
         WHERE p.status!='Cancelado' AND ip.referencia!=''
         GROUP BY ip.referencia ORDER BY total_pcs DESC LIMIT 8
     """).fetchall()]
-    ranking_menos = [dict(r) for r in con.execute("""
-        SELECT ip.referencia, ip.descricao,
-               SUM(ip.total_pcs) as total_pcs,
-               SUM(ip.total_pcs*ip.preco_unitario) as total_valor
-        FROM itens_pedido ip JOIN pedidos p ON p.id=ip.pedido_id
-        WHERE p.status!='Cancelado' AND ip.referencia!=''
-        GROUP BY ip.referencia ORDER BY total_pcs ASC LIMIT 8
-    """).fetchall()]
     con.close()
-    return dict(total=total,faturamento=faturamento,em_producao=em_prod,
-                a_entregar=a_entregar,por_status=por_status,recentes=recentes,
-                ranking_mais=ranking_mais,ranking_menos=ranking_menos)
+    return dict(total=total, faturamento=faturamento, em_producao=em_prod,
+                a_entregar=a_entregar, por_status=por_status, recentes=recentes,
+                ranking_mais=ranking_mais)
 
 
 def referencias_mais_vendidas(limit=10) -> list[dict]:
@@ -294,34 +247,61 @@ def referencias_mais_vendidas(limit=10) -> list[dict]:
                SUM(COALESCE(total_pcs,0)) as total_pecas
         FROM itens_pedido WHERE TRIM(COALESCE(referencia,''))!=''
         GROUP BY referencia ORDER BY total_pecas DESC, referencia ASC LIMIT ?
-    """,(limit,)).fetchall()
-    con.close(); return [dict(r) for r in rows]
+    """, (limit,)).fetchall()
+    con.close()
+    return [dict(r) for r in rows]
 
-
-# ── Catálogo ──────────────────────────────────────────────────────────────────
 
 def buscar_produto(referencia: str) -> Optional[dict]:
     con = get_connection()
-    row = con.execute(
-        "SELECT * FROM produtos WHERE referencia=? AND ativo=1",(referencia,)).fetchone()
-    if not row: con.close(); return None
-    p = dict(row)
-    cores = con.execute(
-        "SELECT nome_cor,hex_cor FROM produto_cores WHERE produto_id=?",(p["id"],)
-    ).fetchall()
-    p["cores"] = [dict(c) for c in cores]
-    con.close(); return p
+    try:
+        row = con.execute(
+            "SELECT * FROM produtos WHERE referencia=? AND ativo=1", (referencia,)).fetchone()
+        if not row:
+            con.close()
+            return None
+        p = dict(row)
+        cores = con.execute(
+            "SELECT nome_cor,hex_cor FROM produto_cores WHERE produto_id=?", (p["id"],)
+        ).fetchall()
+        p["cores"] = [dict(c) for c in cores]
+        con.close()
+        return p
+    except Exception:
+        con.close()
+        return None
 
 
 def listar_vendedores() -> list[str]:
     con = get_connection()
-    rows = con.execute(
-        "SELECT nome FROM vendedores WHERE ativo=1 ORDER BY nome").fetchall()
-    con.close(); return [r["nome"] for r in rows]
+    try:
+        rows = con.execute(
+            "SELECT nome FROM vendedores WHERE ativo=1 ORDER BY nome").fetchall()
+        con.close()
+        return [r["nome"] for r in rows]
+    except Exception:
+        con.close()
+        return []
 
 
-def listar_referencias() -> list[str]:
+def buscar_clientes_autocomplete(termo: str) -> list[dict]:
+    """Busca clientes para autocomplete no form de pedido."""
+    from .cliente_model import buscar_por_nome
+    resultado = buscar_por_nome(termo)
+    # Também busca nos pedidos existentes
     con = get_connection()
-    rows = con.execute(
-        "SELECT referencia FROM produtos WHERE ativo=1 ORDER BY referencia").fetchall()
-    con.close(); return [r["referencia"] for r in rows]
+    rows = con.execute("""
+        SELECT DISTINCT cliente_nome as nome, cliente_doc as doc,
+               cliente_tel as tel, cliente_email as email,
+               cliente_end as endereco, cliente_cidade as cidade
+        FROM pedidos WHERE cliente_nome LIKE ? ORDER BY cliente_nome LIMIT 10
+    """, (f"%{termo}%",)).fetchall()
+    con.close()
+
+    nomes_vistos = {r["nome"] for r in resultado}
+    for r in rows:
+        rd = dict(r)
+        if rd["nome"] not in nomes_vistos:
+            resultado.append(rd)
+            nomes_vistos.add(rd["nome"])
+    return resultado[:10]
