@@ -23,6 +23,8 @@ class ClientesView(tk.Frame):
         tk.Label(hdr, text="Histórico de clientes dos pedidos",
                  font=FONT_SMALL, fg=CINZA_500, bg=CREME).pack(
                  side="left", padx=(12,0))
+        
+        ttk.Button(hdr, text="Novo cliente", command=self._novo_cliente).pack(side="right")
         ttk.Separator(self, orient="horizontal").pack(
             fill="x", padx=PAD_PAGE, pady=(10, 14))
 
@@ -73,3 +75,11 @@ class ClientesView(tk.Frame):
                 c.get("total_pedidos", 0),
                 f"R$ {c.get('total_gasto',0):.2f}",
             ))
+
+    def _novo_cliente(self):
+            sel = self._tree.selection()
+            cliente = None
+            if sel:
+                vals = self._tree.item(sel[0])["values"]
+                cliente = {"cliente_nome": vals[0], "cliente_doc": vals[1], "cliente_tel": vals[2], "cliente_email": vals[3], "cliente_cidade": vals[4]}
+            self.app.novo_pedido(cliente)

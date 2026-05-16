@@ -24,6 +24,7 @@ from views.lista_view import ListaView
 from views.form_pedido_view import FormPedidoView
 from views.clientes_view import ClientesView
 from views.config_view import ConfigView
+from views.login_view import LoginView
 
 
 NAV_ITEMS = [
@@ -73,6 +74,7 @@ class App(tk.Tk):
 
         # ── Pages ────────────────────────────────────────────────────────────
         self._pages: dict[str, tk.Frame] = {}
+        self._pages["login"] = LoginView(self._content, self)
         self._pages["dashboard"] = DashboardView(
             self._content, self._pedido_ctrl, self)
         self._pages["lista"] = ListaView(
@@ -85,7 +87,7 @@ class App(tk.Tk):
             self._content, self._config_ctrl, self)
 
         self._current = None
-        self.show_page("dashboard")
+        self.show_page("login")
 
     # ── Sidebar ───────────────────────────────────────────────────────────────
 
@@ -131,13 +133,13 @@ class App(tk.Tk):
         tk.Frame(sb, bg=AZUL_ESCURO).pack(fill="both", expand=True)
         tk.Frame(sb, bg="#2E6DA4", height=1).pack(fill="x", padx=20)
         tk.Label(sb, text="v2.0 · MVC Edition",
-                 font=(FONT_FAMILY, 8), fg="#919191",
+                 font=(FONT_FAMILY, 8), fg="#5A4A3A",
                  bg=AZUL_ESCURO).pack(pady=(6, 16))
 
         return sb
 
     def _set_nav_active(self, key: str):
-        map_key = key if key != "form" else None
+        map_key = key if key not in ("form", "login") else None
         for k, btn in self._nav_btns.items():
             if k == map_key:
                 btn.config(bg="#2424B1", fg=DOURADO)
@@ -157,6 +159,12 @@ class App(tk.Tk):
         # Refresh hooks
         if hasattr(page, "refresh"):
             page.refresh()
+
+
+    def login_sucesso(self):
+        if not self._sidebar.winfo_ismapped():
+            self._sidebar.pack(side="left", fill="y")
+        self.show_page("dashboard")
 
     def show_lista(self):
         self.show_page("lista")

@@ -7,16 +7,20 @@ from controllers import pdf_controller
 
 class PedidoController:
     def __init__(self, app):
-        self.app = app
+        self.app = app  # referência à janela principal (App)
 
-    def listar(self, busca="", status=""):
+    # ── Lista ────────────────────────────────────────────────────────────────
+
+    def listar(self, busca: str = "", status: str = "") -> list[dict]:
         return pedido_model.listar(busca, status)
 
-    def dashboard(self):
+    def dashboard(self) -> dict:
         return pedido_model.dashboard_stats()
 
-    def ranking_referencias(self, limit=10):
+    def ranking_referencias(self, limit: int = 10) -> list[dict]:
         return pedido_model.referencias_mais_vendidas(limit)
+
+    # ── CRUD ─────────────────────────────────────────────────────────────────
 
     def novo(self) -> Pedido:
         from datetime import date
@@ -24,22 +28,23 @@ class PedidoController:
         p.dt_pedido = date.today().strftime("%d/%m/%Y")
         return p
 
-    def carregar(self, pedido_id: int):
+    def carregar(self, pedido_id: int) -> Pedido | None:
         return pedido_model.buscar(pedido_id)
 
     def salvar(self, pedido: Pedido) -> bool:
         if not pedido.cliente_nome.strip():
-            messagebox.showerror("Campo obrigatório","Informe o nome do cliente.")
+            messagebox.showerror("Campo obrigatório", "Informe o nome do cliente.")
             return False
         if not pedido.itens:
-            messagebox.showerror("Sem itens","Adicione pelo menos uma referência.")
+            messagebox.showerror("Sem itens", "Adicione pelo menos uma referência ao pedido.")
             return False
         pedido_model.salvar(pedido)
         return True
 
     def excluir(self, pedido_id: int) -> bool:
         if messagebox.askyesno("Confirmar exclusão",
-                               "Excluir este pedido permanentemente?"):
+                               "Deseja excluir este pedido permanentemente?\n"
+                               "Esta ação não pode ser desfeita."):
             pedido_model.excluir(pedido_id)
             return True
         return False

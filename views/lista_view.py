@@ -53,20 +53,16 @@ class ListaView(tk.Frame):
         tree_frame.pack(fill="both", expand=True, padx=PAD_PAGE, pady=(10,0))
 
         cols = [
-            ("numero",      "Número",    100),
-            ("vendedor",    "Vendedor",  110),
-            ("cliente_nome","Cliente",   220),
-            ("dt_pedido",   "Pedido",     90),
-            ("dt_entrega",  "Entrega",    90),
-            ("total_pecas", "Peças",      60),
-            ("total_valor", "Total R$",  100),
-            ("status",      "Status",    115),
+            ("numero",      "Número",   100),
+            ("cliente_nome","Cliente",  240),
+            ("dt_pedido",   "Pedido",   95),
+            ("dt_entrega",  "Entrega",  95),
+            ("total_pecas", "Peças",    65),
+            ("total_valor", "Total R$", 110),
+            ("status",      "Status",   120),
         ]
         self._tree = build_treeview(tree_frame, cols, height=22)
-        # anchor center já aplicado no build_treeview — garante aqui também
-        for col_id, _, _ in cols:
-            self._tree.column(col_id, anchor="center")
-            self._tree.heading(col_id, anchor="center")
+        self._configure_columns()
 
         sb = ttk.Scrollbar(tree_frame, orient="vertical",
                            command=self._tree.yview)
@@ -74,21 +70,25 @@ class ListaView(tk.Frame):
         self._tree.pack(side="left", fill="both", expand=True)
         sb.pack(side="left", fill="y")
 
+        # tags de cor por status
         for st, (bg, fg) in STATUS_COLORS.items():
             self._tree.tag_configure(st, foreground=fg)
 
         self._tree.bind("<Double-1>", lambda _: self._abrir())
 
-        # Toolbar
+        # ── Toolbar ──────────────────────────────────────────────────────────
         bar = tk.Frame(self, bg=CREME,
                        highlightbackground=CINZA_300, highlightthickness=1)
         bar.pack(fill="x", padx=PAD_PAGE, pady=(0, PAD_PAGE))
-        SecondaryBtn(bar, "✎  Abrir",   command=self._abrir).pack(
-            side="left", padx=(8,4), pady=8)
-        SecondaryBtn(bar, "🖨  PDF",    command=self._pdf).pack(
+
+        SecondaryBtn(bar, "✎  Abrir", command=self._abrir).pack(
+            side="left", padx=(8, 4), pady=8)
+        SecondaryBtn(bar, "🖨  PDF", command=self._pdf).pack(
             side="left", padx=4, pady=8)
-        DangerBtn(bar,    "✕  Excluir", command=self._excluir).pack(
+        DangerBtn(bar, "✕  Excluir", command=self._excluir).pack(
             side="left", padx=4, pady=8)
+
+        # status rápido
         tk.Label(bar, text="Alterar status:", font=FONT_SMALL,
                  fg=CINZA_500, bg=CREME).pack(side="right", padx=(0,8), pady=8)
         self._novo_status = tk.StringVar(value="Status")
@@ -98,16 +98,23 @@ class ListaView(tk.Frame):
         st_cb.pack(side="right", pady=8, padx=4)
         st_cb.bind("<<ComboboxSelected>>", self._change_status)
 
+    def _configure_columns(self):
+        for c in ("numero","cliente_nome","dt_pedido","dt_entrega","total_pecas","total_valor","status"):
+            self._tree.heading(c, anchor="center")
+            self._tree.column(c, anchor="center")
+
+    # ── Actions ──────────────────────────────────────────────────────────────
+
     def refresh(self):
-        for r in self._tree.get_children(): self._tree.delete(r)
+        for r in self._tree.get_children():
+            self._tree.delete(r)
         busca  = self._busca.get()
         status = self._status.get() if self._status.get() != "Todos" else ""
-        rows   = self.ctrl.listar(busca, status)
+        rows = self.ctrl.listar(busca, status)
         for r in rows:
             valor = f"R$ {r['total_valor']:.2f}" if r["total_valor"] else "R$ 0,00"
-            self._tree.insert("","end", iid=str(r["id"]),
-                values=(r["numero"], r.get("vendedor",""),
-                        r["cliente_nome"],
+            self._tree.insert("", "end", iid=str(r["id"]),
+                values=(r["numero"], r["cliente_nome"],
                         r.get("dt_pedido","—"), r.get("dt_entrega","—"),
                         r["total_pecas"], valor, r["status"]),
                 tags=(r["status"],))
