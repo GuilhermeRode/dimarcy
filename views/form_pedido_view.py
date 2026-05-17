@@ -273,7 +273,7 @@ class FormPedidoView(tk.Frame):
     def _build_pagamento(self, parent):
         for k in ["forma_pgto","prazo_pgto","desconto","vendedor"]:
             self._v[k] = tk.StringVar()
-        body = self._section(parent, "💳  Pagamento")
+        body = self._section(parent, "💳  Pagamento e Vendedor")
         r = tk.Frame(body, bg=CREME_CARD)
         r.pack(fill="x", pady=PAD_ROW)
         fields = [

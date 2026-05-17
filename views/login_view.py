@@ -3,6 +3,8 @@ views/login_view.py — Tela de login
 """
 import tkinter as tk
 from tkinter import ttk, messagebox
+
+from numpy import inner
 from views.theme import *
 from views.widgets import Card, PrimaryBtn
 from models.database import autenticar
@@ -60,15 +62,22 @@ class LoginView(tk.Frame):
         s_entry.pack(fill="x", pady=(2, 20))
         s_entry.bind("<Return>", lambda _: self._entrar())
 
-        # Botão
-        btn = tk.Button(inner, text="  Entrar  →",
-                        command=self._entrar,
-                        font=(FONT_FAMILY, 11, "bold"),
-                        bg=AZUL, fg="white",
-                        activebackground=AZUL_MED, activeforeground="white",
-                        relief="flat", cursor="hand2",
-                        padx=24, pady=10)
-        btn.pack(fill="x")
+        btn = tk.Button(
+            inner,
+            text="Entrar →",
+            command=self._entrar,
+            font=(FONT_FAMILY, 10, "bold"),
+            bg=AZUL,
+            fg="white",
+            activebackground=AZUL_MED,
+            activeforeground="white",
+            relief="flat",
+            cursor="hand2",
+            padx=10,
+            pady=5  
+        )
+
+        btn.pack(pady=(5, 0))
 
         self._erro_lbl = tk.Label(inner, text="", font=FONT_SMALL,
                                    fg="#B42318", bg=CREME_CARD)
